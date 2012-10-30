@@ -2,10 +2,10 @@
 	$.fn.extend({
 		zpopup: function (onCloseCallback) {
 
-			var callBack = onCloseCallback;
-
-			//some code
+			//global vars
+			var isChanged;
 			var zOverlay = $('<div id="zpopup-overlay"></div>');
+			
 			$('body').append(zOverlay);
 			zOverlay.click(function (e) {
 				e.stopPropagation();
@@ -14,22 +14,21 @@
 			return this.each(function () {
 
 				var parent = $(this);
-				var zWidth = parent.css("width");
-
-				var self = $('.zpopup-select', $(this));
+				var self = $('.zpopup-select', parent);
+				var selfWidth = self.css("width");
+				console.log("zWidth: " + selfWidth);
 				self.hide();
 
 				var header = $('<input type="text" class="zpopup-header" value=""></input>');
-				header.css("width", parseInt(zWidth) - 4 + 'px');
+				header.css("width", parseInt(selfWidth) - 2 + 'px');
 				header.attr("readonly", "readonly");
-				//parent.append(header);
 				header.insertAfter(self);
 				$(header).data("isOpen", false);
 
-				var hidden = $('.zpopup-hidden', $(this)).val();
+				var hidden = $('.zpopup-hidden', parent).val();
 				var ids = hidden.length > 0 ? hidden.split(';') : new Array();
 
-				//set header text
+				//init header text with selected items
 				var txtVals = '';
 				$('option', self).each(function () {
 					for (var idd in ids) {
@@ -55,6 +54,7 @@
 				});
 				$('.zpopup-header', $(wrp)).val(txtVals === '' ? '' : txtVals.substring(0, txtVals.length - 2));
 				$('.zpopup-hidden', $(wrp)).val(txtIds === '' ? '' : txtIds.substring(0, txtIds.length - 1));
+				isChanged = true;
 			}
 
 			function zHide() {
@@ -63,19 +63,19 @@
 				zOverlay.children().remove();
 				$(document).unbind('click', zHide);
 
-				if (callBack != null)
-					callBack();
+				if (onCloseCallback != null && isChanged)
+					onCloseCallback();
 			}
 
 			function buildOverflow(e) {
 				e.preventDefault();
 				e.stopPropagation();
 
-				var wrp = $(this).closest('.dropbox');
-				var self = $('.zpopup-select', wrp);
+				var parent = $(this).closest('.dropbox');
+				var self = $('.zpopup-select', parent);
 				var selfId = self.attr("id");
-				var header = $('.zpopup-header', wrp);
-				var hidden = $('.zpopup-hidden', wrp).val();
+				var header = $('.zpopup-header', parent);
+				var hidden = $('.zpopup-hidden', parent).val();
 				var ids = hidden.length > 0 ? hidden.split(';') : new Array();
 
 				var isOpen = zOverlay.data("isOpen");
@@ -83,11 +83,12 @@
 				if (isOpen && idOpen == selfId) {
 					zHide();
 				} else {
+					isChanged = false;
 					zOverlay.data({ isOpen: true, idOpen: selfId });
 					zOverlay.css({
-						width: parseInt(wrp.css("width")) + 30 + 'px',
-						left: wrp.offset().left,
-						top: parseInt(wrp.offset().top) + parseInt(wrp.css("height")) + 1 + 'px'
+						width: parseInt(self.css("width")) + 30 + 'px',
+						left: parent.offset().left,
+						top: parseInt(parent.offset().top) + parseInt(parent.css("height")) + 1 + 'px'
 					});
 					zOverlay.show();
 					zOverlay.children().remove();
@@ -96,7 +97,7 @@
 					$('option', self).each(function () {
 						var div = $('<div class="zpopup-itemrow" />');
 						var chb = $('<input type="checkbox" />').change(function () {
-							onChckChng(wrp);
+							onChckChng(parent);
 						});
 						var chbId = self.attr('id') + '-' + $(this).val();
 						chb.attr('id', chbId);
