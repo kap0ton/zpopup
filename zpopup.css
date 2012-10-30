@@ -1,0 +1,7 @@
+﻿.dropbox {}
+
+#zpopup-overlay { display: none;border: 1px solid gray;max-height: 200px;overflow: auto;position: absolute;left: 0px;top: 0px;z-index: 100;background-color: white;}
+.zpopup-header { /*border: 1px solid black;overflow: hidden;padding: 0px;margin: 0px;*/ }
+.zpopup-hidden { }
+.zpopup-select { }
+.zpopup-itemrow { padding: 0px;margin: 0px;white-space: nowrap;}
