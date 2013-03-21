@@ -1,21 +1,19 @@
 ﻿(function ($) {
-	$.fn.zpopup = function(options) {
+	$.fn.zpopup = function (options) {
 
 		//global vars
 		var isChanged;
 		var settings = $.extend({
-			onClose: null,
-			allSelected: false,
-			noSelected: false
+			onClose: null
 		}, options);
 		var zOverlay = $('<div id="zpopup-overlay"></div>');
 
 		$('body').append(zOverlay);
-		zOverlay.click(function(e) {
+		zOverlay.click(function (e) {
 			e.stopPropagation();
 		});
 
-		return this.each(function() {
+		return this.each(function () {
 
 			var parent = $(this);
 			var self = $('.zpopup-select', parent);
@@ -33,7 +31,7 @@
 
 			//init header text with selected items
 			var txtVals = '';
-			$('option', self).each(function() {
+			$('option', self).each(function () {
 				for (var idd in ids) {
 					if ($(this).val() == ids[idd]) {
 						txtVals += $(this).text() + ', ';
@@ -51,7 +49,7 @@
 		function onChckChng(wrp) {
 			var txtIds = '';
 			var txtVals = '';
-			$('input[type=checkbox]', zOverlay).each(function(index, item) {
+			$('input[type=checkbox]', zOverlay).each(function (index, item) {
 				if (item.checked) {
 					txtIds += $(item).attr('tid') + ";";
 					txtVals += $(item).attr('tval') + ', ';
@@ -65,13 +63,15 @@
 		}
 
 		function zHide() {
+			var theId = zOverlay.data("idOpen");
 			zOverlay.data({ isOpen: false, idOpen: null });
 			zOverlay.hide();
 			zOverlay.children().remove();
 			$(document).unbind('click', zHide);
 
-			if (settings.onClose != null && typeof (settings.onClose) === 'function'  && isChanged)
-				settings.onClose();
+			if (settings.onClose != null && typeof (settings.onClose) === 'function' && isChanged) {
+				settings.onClose(theId);
+			}
 		}
 
 		function buildOverflow(e) {
@@ -92,7 +92,7 @@
 				isChanged = false;
 				zOverlay.data({ isOpen: true, idOpen: selfId });
 				zOverlay.css({
-					width: parseInt(self.css("width")) + 30 + 'px',
+					width: parseInt(self.css("width")) + 'px',
 					left: parent.offset().left,
 					top: parseInt(parent.offset().top) + parseInt(parent.css("height")) + 'px'
 				});
@@ -100,9 +100,9 @@
 				zOverlay.children().remove();
 
 				var txtVals = '';
-				$('option', self).each(function() {
+				$('option', self).each(function () {
 					var div = $('<div class="zpopup-itemrow" />');
-					var chb = $('<input type="checkbox" />').change(function() {
+					var chb = $('<input type="checkbox" />').change(function () {
 						onChckChng(parent);
 					});
 					var chbId = self.attr('id') + '-' + $(this).val();
